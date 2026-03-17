@@ -1,6 +1,7 @@
 package u03
 
 import u03.Optionals.Optional
+import u03.Optionals.Optional.{Empty, Just}
 
 import scala.annotation.tailrec
 
@@ -86,28 +87,48 @@ object Sequences: // Essentially, generic linked lists
      * E.g., [30, 20, 10] => 10
      * E.g., [10, 1, 30] => 1
      */
-    def min(s: Sequence[Int]): Optional[Int] = ???
+    def min(s: Sequence[Int]): Optional[Int] =
+      @tailrec
+      def helper(remaining: Sequence[Int], min: Int): Int = remaining match
+        case Cons(h, t) => h < min match
+          case true => helper(t, h)
+          case _    => helper(t, min)
+        case _ => min
+      s match
+        case Cons(h, t) => Just(helper(t, h))
+        case _ => Empty()
 
     /*
      * Get the elements at even indices
      * E.g., [10, 20, 30] => [10, 30]
      * E.g., [10, 20, 30, 40] => [10, 30]
      */
-    def evenIndices[A](s: Sequence[A]): Sequence[A] = ???
+    def evenIndices[A](s: Sequence[A]): Sequence[A] = s match
+      case Cons(h1, t1) => t1 match
+        case Cons(_, t2) => Cons(h1, evenIndices(t2))
+        case _ => Cons(h1, Nil())
+      case _ => Nil()
 
     /*
      * Check if the sequence contains the element
      * E.g., [10, 20, 30] => true if elem is 20
      * E.g., [10, 20, 30] => false if elem is 40
      */
-    def contains[A](s: Sequence[A])(elem: A): Boolean = ???
+    @tailrec
+    def contains[A](s: Sequence[A])(elem: A): Boolean = s match
+      case Cons(h, t) => h == elem match
+        case true => true
+        case false => contains(t)(elem)
+      case _ => false
 
     /*
      * Remove duplicates from the sequence
      * E.g., [10, 20, 10, 30] => [10, 20, 30]
      * E.g., [10, 20, 30] => [10, 20, 30]
      */
-    def distinct[A](s: Sequence[A]): Sequence[A] = ???
+    def distinct[A](s: Sequence[A]): Sequence[A] = s match
+      case Cons(h, t) => Cons(h, distinct(filter(t)(_ != h)))
+      case _ => Nil()
 
     /*
      * Group contiguous elements in the sequence
@@ -115,14 +136,25 @@ object Sequences: // Essentially, generic linked lists
      * E.g., [10, 20, 30] => [[10], [20], [30]]
      * E.g., [10, 20, 20, 30] => [[10], [20, 20], [30]]
      */
-    def group[A](s: Sequence[A]): Sequence[Sequence[A]] = ???
+    def group[A](s: Sequence[A]): Sequence[Sequence[A]] =
+      def helper(remaining: Sequence[A])(elem: A)(acc: Sequence[A]): Sequence[Sequence[A]] = remaining match
+        case Cons(h, t) => h == elem match
+          case true => helper(t)(elem)(Cons(h, acc))
+          case false => t match
+            case Cons(th, tt) => Cons(acc, helper(remaining)(h)(Nil()))
+            case _ => Cons(acc, Cons(Cons(h, Nil()), Nil()))
+        case _ => Nil()
+      s match
+        case Cons(h, t) => helper(t)(h)(Cons(h, Nil()))
+        case _ => Nil()
 
     /*
      * Partition the sequence into two sequences based on the predicate
      * E.g., [10, 20, 30] => ([10], [20, 30]) if pred is (_ < 20)
      * E.g., [11, 20, 31] => ([20], [11, 31]) if pred is (_ % 2 == 0)
      */
-    def partition[A](s: Sequence[A])(pred: A => Boolean): (Sequence[A], Sequence[A]) = ???
+    def partition[A](s: Sequence[A])(pred: A => Boolean): (Sequence[A], Sequence[A]) =
+      (filter(s)(pred), filter(s)(elem => !pred(elem)))
 
     @tailrec
     def foldLeft[A](s: Sequence[A])(accumulator: A)(op: (A, A) => A): A = s match
