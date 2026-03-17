@@ -1,5 +1,7 @@
 package u03
 
+import scala.annotation.tailrec
+
 object Streams extends App :
 
   import Sequences.*
@@ -37,16 +39,21 @@ object Streams extends App :
     def iterate[A](init: => A)(next: A => A): Stream[A] =
       cons(init, iterate(next(init))(next))
 
+    def takeWhile[A](s: Stream[A])(p: A => Boolean): Stream[A] = s match
+      case Cons(h, t) => p(h()) match
+        case true => cons(h(), takeWhile(t())(p))
+        case _ => Empty()
+      case _ => Empty()
+
+    def fill[A](n: Int)(k: A): Stream[A] = n match
+      case x if x > 0 => cons(k, fill(n - 1)(k))
+      case _ => empty()
+
+    def fibonacci(n: Int): Stream[Int] =
+      def helper(prev1: Int, prev2: Int, accumulator: Int): Stream[Int] =
+        accumulator match
+          case x if x == n => empty()
+          case _ => cons(prev2, helper(prev2, prev1 + prev2, accumulator + 1))
+      helper(1, 0, 0)
+
   end Stream
-
-@main def tryStreams =
-  import Streams.* 
-
-  val str1 = Stream.iterate(0)(_ + 1) // {0,1,2,3,..}
-  val str2 = Stream.map(str1)(_ + 1) // {1,2,3,4,..}
-  val str3 = Stream.filter(str2)(x => (x < 3 || x > 20)) // {1,2,21,22,..}
-  val str4 = Stream.take(str3)(10) // {1,2,21,22,..,28}
-  println(Stream.toList(str4)) // [1,2,21,22,..,28]
-
-  lazy val corec: Stream[Int] = Stream.cons(1, corec) // {1,1,1,..}
-  println(Stream.toList(Stream.take(corec)(10))) // [1,1,..,1]

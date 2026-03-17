@@ -56,7 +56,7 @@ object Sequences: // Essentially, generic linked lists
      */
     def concat[A](s1: Sequence[A], s2: Sequence[A]): Sequence[A] = (s1, s2) match
       case (Cons(h, t), _) => Cons(h, concat(t, s2))
-      case (Nil(), Cons(h, t)) => Cons(h, concat(s1, t))
+      case (Nil(), Cons(h, t)) => s2
       case (Nil(), Nil()) => Nil()
 
     /*
@@ -121,12 +121,3 @@ object Sequences: // Essentially, generic linked lists
      * E.g., [11, 20, 31] => ([20], [11, 31]) if pred is (_ % 2 == 0)
      */
     def partition[A](s: Sequence[A])(pred: A => Boolean): (Sequence[A], Sequence[A]) = ???
-
-@main def trySequences(): Unit =
-  import Sequences.* 
-  val l = Sequence.Cons(10, Sequence.Cons(20, Sequence.Cons(30, Sequence.Nil())))
-  println(Sequence.sum(l)) // 30
-
-  import Sequence.*
-
-  println(sum(map(filter(l)(_ >= 20))(_ + 1))) // 21+31 = 52
