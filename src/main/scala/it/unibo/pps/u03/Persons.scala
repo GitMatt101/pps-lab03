@@ -1,7 +1,7 @@
 package it.unibo.pps.u03
 
 import u03.Sequences.Sequence
-import u03.Sequences.Sequence.{Cons, Nil, flatMap}
+import u03.Sequences.Sequence.{Cons, Nil, distinct, flatMap, map}
 
 object Persons:
   enum Person:
@@ -17,3 +17,5 @@ object Persons:
       case Teacher(_, c) => Cons(c, Nil())
       case _ => Nil()
     )
+
+    def countDistinctCourses(p: Sequence[Person]): Int = Sequence.sum(map(distinct(getCourses(p)))(_ => 1))
