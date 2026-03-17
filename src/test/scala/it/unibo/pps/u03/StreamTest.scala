@@ -19,4 +19,4 @@ class StreamTest:
 
   @Test def testFibonacci(): Unit =
     val stream = Stream.fibonacci(6)
-    assertEquals(toList(stream), Cons(0, Cons(1, Cons(1, Cons(2, Cons(3, Cons(5, Nilk())))))))
+    assertEquals(toList(stream), Cons(0, Cons(1, Cons(1, Cons(2, Cons(3, Cons(5, Nil())))))))

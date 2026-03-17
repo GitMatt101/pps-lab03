@@ -2,6 +2,8 @@ package u03
 
 import u03.Optionals.Optional
 
+import scala.annotation.tailrec
+
 object Sequences: // Essentially, generic linked lists
   
   enum Sequence[E]:
@@ -121,3 +123,8 @@ object Sequences: // Essentially, generic linked lists
      * E.g., [11, 20, 31] => ([20], [11, 31]) if pred is (_ % 2 == 0)
      */
     def partition[A](s: Sequence[A])(pred: A => Boolean): (Sequence[A], Sequence[A]) = ???
+
+    @tailrec
+    def foldLeft[A](s: Sequence[A])(accumulator: A)(op: (A, A) => A): A = s match
+      case Cons(h, t) => foldLeft(t)(op(accumulator, h))(op)
+      case _ => accumulator
