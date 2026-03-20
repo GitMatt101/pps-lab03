@@ -56,4 +56,22 @@ object Streams extends App :
           case _ => cons(prev2, helper(prev2, prev1 + prev2, accumulator + 1))
       helper(1, 0, 0)
 
+    def interleave[A](s1: Stream[A], s2: Stream[A]): Stream[A] = s1 match
+      case Cons(h, t) => cons(h(), interleave(s2, t()))
+      case _ => s2 match
+        case Cons(h, t) => cons(h(), interleave(t(), Empty()))
+        case _ => Empty()
+
+    def fromList[A](list: List[A]): Stream[A] =
+      def helper(index: Int): Stream[A] = index match
+        case x if x >= list.size => Empty()
+        case _ => cons(list(index), helper(index + 1))
+      helper(0)
+
+    def cycle[A](lst: Sequence[A]): Stream[A] =
+      def helper(s: Sequence[A]): Stream[A] = s match
+        case Sequence.Cons(h, t) => cons(h, helper(t))
+        case _ => helper(lst)
+      helper(lst)
+
   end Stream
